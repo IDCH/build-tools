@@ -1,0 +1,10 @@
+This directory is for shared files related to the Apache Ant build system.
+
+Most notably, basic.xml is a complete build configuration for a simple Java project. While this could be copied and
+modified to produce a build.xml for a new project, a better way is to make the project's build.xml <import> basic.xml,
+and then apply any needed customizations on top of it. If you're creating a new project, copy build.xml.example to
+<project>/build.xml to get started.
+
+ivysettings.xml contains the configuration for using Apache Ivy to retrieve Java dependencies from the Ivy repository
+identified in ../ivy-repository.properties. This repository should be used rather than the public Maven 2 repositories,
+as the latter are missing some modules, and have others in weird places, or with incorrect metadata.

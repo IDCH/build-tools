@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<ivysettings>
+
+  <settings defaultResolver="main"/>
+
+  <properties file="${ivy.settings.dir}/../ivy-repository.properties" override="false"/>
+
+  <!-- Include the default "local" resolver (from the ivy jar file) -->
+  <include url="${ivy.default.settings.dir}/ivysettings-local.xml"/>
+
+  <!-- -->
+  <resolvers>
+    <chain name="main" returnFirst="true">
+      <resolver ref="local"/>
+      <filesystem name="ivy-repository">
+        <ivy pattern="${ivy-repository}/[organisation]/[module]/ivys/ivy-[revision].xml"/>
+        <artifact pattern="${ivy-repository}/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
+      </filesystem>
+    </chain>
+  </resolvers>
+
+</ivysettings>
