@@ -1,0 +1,43 @@
+<!-- -*- ant -*- -->
+<!-- ============================================================================================================= ==>
+<!== bootstrap-ivy2.xml
+<!==
+<!== Created by Ryan L. Saunders <saunders@aggienetwork.com>
+<!==
+<!== This file detects whether or not Apache Ivy v2.x is available. If not, it is downloaded to ${user.home}/.ant/lib,
+<!== ant Ant is informed of their arrival. This means that having Ivy installed is not a prerequisite for launching a
+<!== build...it will be downloaded if it is needed.
+<!==
+<!== This file is intended to be imported from another build.xml (basic.xml, in this directory, imports it). Any
+<!== targets that require Ivy should declare a dependency on the "download-ivy2" target. 
+<!== ============================================================================================================= -->
+<project name="bootstrap-ivy2">
+
+  <!-- What to install, and where to get it from -->
+  <property name="ivy2.install.version" value="2.1.0" />
+  <property name="ivy2.jar.url" value="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy2.install.version}/ivy-${ivy2.install.version}.jar"/>
+
+  <!-- Where to put it -->
+  <property name="plugin.dir" value="${user.home}/lib" />
+  <property name="ivy2.jar.file" value="${plugin.dir}/ivy2.jar" />
+
+
+  <!-- Helper target to check whether Ivy is already available. The property ivy2-installed.check will be set only if
+       Ivy can be found with Ant's current classpath. -->
+  <target name="-check-for-installed-ivy2">
+    <condition property="ivy2-installed.check" value="yes">
+      <available classname="org.apache.ivy.Main"/>
+    </condition>
+  </target>
+
+
+  <!-- If Ivy isn't already present, download it from the web and tell Ant about it. This way, only Ant is a
+       prerequisite for building. -->
+  <target name="download-ivy2" depends="-check-for-installed-ivy2" unless="ivy2-installed.check">
+    <echo message="Apache Ivy is not present...downloading version ${ivy2.install.version}"/>
+    <mkdir dir="${plugin.dir}"/>
+    <get src="${ivy2.jar.url}" dest="${ivy2.jar.file}" usetimestamp="true"/>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpath="${ivy2.jar.file}"/>
+  </target>
+
+</project>

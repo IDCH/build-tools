@@ -27,6 +27,15 @@
 
 
   <!-- =========================================================================================================== ==>
+  <!== Demand-loading support for add-on tasks which may not be present
+  <!== =========================================================================================================== -->
+
+  <!-- Check for Apache Ivy, and download it if not present -->
+  <import file="${basic.basedir}/bootstrap-ivy2.xml"/>
+  <import file="${basic.basedir}/bootstrap-antlr3.xml"/>
+
+
+  <!-- =========================================================================================================== ==>
   <!== Basic project directory structure
   <!== =========================================================================================================== -->
 
@@ -94,17 +103,21 @@
     <delete dir="${lib.dir}"/>
   </target>
 
-  <target name="clean" description="--> Remove all generated files" depends="clean-bin, clean-lib, clean-doc"/>
+  <target name="clean" description="--> Remove all generated files" depends="clean-bin, clean-lib, clean-doc">
+    <delete dir="${build.dir}"/>
+  </target>
 
 
   <!-- =========================================================================================================== ==>
   <!== Build targets
   <!== =========================================================================================================== -->
 
-  <!-- TODO: should this go in an init target? -->
-  <ivy:settings file="${ivy.settings.xml}"/>
+  <!-- TODO -->
+  <target name="-init-ivy" depends="download-ivy2">
+    <ivy:settings file="${ivy.settings.xml}"/>
+  </target>
 
-  <target name="resolve" description="--> Download this project's dependencies" unless="resolve.skip">
+  <target name="resolve" description="--> Download this project's dependencies" depends="-init-ivy" unless="resolve.skip">
     <mkdir dir="${lib.dir}"/>
     <ivy:retrieve sync="true" pattern="${lib.dir}/[artifact]-[revision].[ext]" type="jar"/>
   </target>
@@ -136,7 +149,7 @@
   </target>
 
   <!-- TODO: how to handle javadoc artifacts -->
-  <target name="doc" description="--> Build Javadocs for this project">
+  <target name="doc" depends="resolve" description="--> Build Javadocs for this project">
     <javadoc sourcepathref="javadoc.src.path"
              destdir="${javadoc.dir}"
              classpathref="lib.classpath"

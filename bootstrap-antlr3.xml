@@ -1,0 +1,56 @@
+<!-- -*- ant -*- -->
+<!-- ============================================================================================================= ==>
+<!== bootstrap-antlr3.xml
+<!==
+<!== Created by Ryan L. Saunders <saunders@aggienetwork.com>
+<!==
+<!== This file detects whether or not ANTLR v3.x and its supporting Ant tasklib are available. If one or the other is
+<!== missing, both are downloaded to ${user.home}/.ant/lib, and Ant is informed of their arrival. This means that
+<!== having ANTLR v3 installed is not a prerequisite for launching a build...it will be downloaded if it is needed.
+<!==
+<!== This file is intended to be imported from another build.xml (basic.xml, in this directory, imports it). Any
+<!== targets that require ANTLR v3 should declare a dependency on the "download-antlr3" target. 
+<!== ============================================================================================================= -->
+<project name="bootstrap-antlr">
+
+  <!-- What to install, and where to get it from -->
+  <property name="antlr3.install.version" value="3.2"/>
+  <property name="antlr3.jar.url" value="http://www.antlr.org/download/antlr-${antlr3.install.version}.jar"/>
+  <property name="antlr3-task.install.version" value="1.0.0"/>
+  <property name="antlr3-task.jar.url" value="http://www.springsource.com/repository/app/bundle/version/download?name=com.springsource.org.apache.tools.ant.antlr&amp;version=${antlr3-task.install.version}&amp;type=binary"/>
+
+  <!-- Where to put it -->
+  <property name="plugin.home.dir" value="${user.home}/.ant/lib"/>
+  <property name="antlr3.jar.file" value="${plugin.home.dir}/antlr3.jar"/>
+  <property name="antlr3-task.jar.file" value="${plugin.home.dir}/ant-antlr3.jar"/>
+
+
+  <!-- Helper target to check whether ANTLR v3 is already available. The property antlr3-installed.check will be set only if
+       ANTLR v3 can be found with Ant's current classpath. -->
+  <target name="-check-for-installed-antlr3">
+    <condition property="antlr3-installed.check" value="yes">
+      <and>
+        <available classname="org.antlr.grammar.v3.ANTLRv3Parser"/>
+        <available classname="org.apache.tools.ant.antlr.ANTLR3"/>
+      </and>
+    </condition>
+    <condition property="antlr3-installed.msg" value="ANTLR v3 is already installed" else="ANTLR v3 is not installed">
+      <isset property="antlr3-installed.check"/>
+    </condition>
+    <echo message="${antlr3-installed.msg}"/>
+  </target>
+
+
+  <!-- If ANTLR v3 isn't already present, download it from the web and tell Ant about it. This way, only Ant is a
+       prerequisite for building. -->
+  <target name="download-antlr3" description="--> Download supporting tasklib for ANTLR v3"
+          depends="-check-for-installed-antlr3" unless="antlr3-installed.check">
+    <echo message="ANTLR v3 and/or its Ant tasklib is not present...downloading version ${antlr3.install.version}"/>
+    <mkdir dir="${plugin.home.dir}"/>
+    <get src="${antlr3.jar.url}" dest="${antlr3.jar.file}" usetimestamp="true"/>
+    <get src="${antlr3-task.jar.url}" dest="${antlr3-task.jar.file}" usetimestamp="true"/>
+    <taskdef resource="org/apache/tools/ant/antlr/antlib.xml" uri="antlib:org.apache.tools.ant.antlr"
+             classpath="${antlr3.jar.file}:${antlr3-task.jar.file}"/>
+  </target>
+
+</project>
