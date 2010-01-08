@@ -12,10 +12,10 @@
   <resolvers>
     <chain name="main" returnFirst="true">
       <resolver ref="local"/>
-      <filesystem name="ivy-repository">
+      <url name="ivy-repository">
         <ivy pattern="${ivy-repository}/[organisation]/[module]/ivys/ivy-[revision].xml"/>
         <artifact pattern="${ivy-repository}/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
-      </filesystem>
+      </url>
     </chain>
   </resolvers>
 
