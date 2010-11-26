@@ -144,6 +144,7 @@
       <src refid="src.path"/>
       <compilerarg value="${compilerarg.deprecation}"/>
       <compilerarg value="${compilerarg.unchecked}"/>
+      <compilerarg line="-encoding utf-8"/>
     </javac>
 
   </target>
