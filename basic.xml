@@ -112,8 +112,7 @@
   <!== Build targets
   <!== =========================================================================================================== -->
 
-  <!-- TODO -->
-  <target name="-init-ivy" depends="download-ivy2">
+  <target name="-init-ivy" depends="activate-ivy2">
     <ivy:settings file="${ivy.settings.xml}"/>
   </target>
 
