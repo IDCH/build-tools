@@ -7,4 +7,5 @@ and then apply any needed customizations on top of it. If you're creating a new 
 
 ivysettings.xml contains the configuration for using Apache Ivy to retrieve Java dependencies from the Ivy repository
 identified in ../ivy-repository.properties. This repository should be used rather than the public Maven 2 repositories,
-as the latter are missing some modules, and have others in weird places, or with incorrect metadata.
+as the latter are missing some modules, and have others in weird places, or with incorrect metadata. If you don't yet
+have an ivy-repository.properties, copy ivy-repository.properties.example and modify as appropriate.
