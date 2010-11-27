@@ -119,7 +119,7 @@
 
   <target name="resolve" description="--> Download this project's dependencies" depends="-init-ivy" unless="resolve.skip">
     <mkdir dir="${lib.dir}"/>
-    <ivy:retrieve sync="true" pattern="${lib.dir}/[artifact]-[revision].[ext]" conf="compile"/>
+    <ivy:retrieve sync="true" pattern="${lib.dir}/[artifact]-[revision].[ext]" conf="compile" log="quiet"/>
   </target>
 
   <target name="compile" description="--> Compile this project" depends="resolve" unless="compile.skip">
