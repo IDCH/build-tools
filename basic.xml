@@ -67,6 +67,7 @@
     <pathelement location="${src.dir}"/>
   </path>
 
+  <!-- Classpath including all compile/runtime binary dependencies. -->
   <path id="lib.classpath">
     <fileset dir="${lib.dir}">
       <include name="**/*.jar"/>
@@ -118,7 +119,7 @@
 
   <target name="resolve" description="--> Download this project's dependencies" depends="-init-ivy" unless="resolve.skip">
     <mkdir dir="${lib.dir}"/>
-    <ivy:retrieve sync="true" pattern="${lib.dir}/[artifact]-[revision].[ext]"/>
+    <ivy:retrieve sync="true" pattern="${lib.dir}/[artifact]-[revision].[ext]" conf="compile"/>
   </target>
 
   <target name="compile" description="--> Compile this project" depends="resolve" unless="compile.skip">
@@ -153,7 +154,8 @@
     <javadoc sourcepathref="javadoc.src.path"
              destdir="${javadoc.dir}"
              classpathref="lib.classpath"
-             windowtitle="${javadoc.windowtitle}">
+             windowtitle="${javadoc.windowtitle}"
+             encoding="utf-8">
       <link href="http://java.sun.com/javase/6/docs/api"/>
     </javadoc>
   </target>
