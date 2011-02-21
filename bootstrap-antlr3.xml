@@ -17,7 +17,7 @@
   <property name="antlr3.install.version" value="3.2"/>
   <property name="antlr3.jar.url" value="http://www.antlr.org/download/antlr-${antlr3.install.version}.jar"/>
   <property name="antlr3-task.install.version" value="1.0.0"/>
-  <property name="antlr3-task.jar.url" value="http://www.springsource.com/repository/app/bundle/version/download?name=com.springsource.org.apache.tools.ant.antlr&amp;version=${antlr3-task.install.version}&amp;type=binary"/>
+  <property name="antlr3-task.jar.url" value="jar:http://www.antlr.org/share/1169924912745/antlr3-task.zip!/antlr3-task/ant-antlr3.jar"/>
 
   <!-- Where to put it -->
   <property name="plugin.home.dir" value="${user.home}/.ant/lib"/>
