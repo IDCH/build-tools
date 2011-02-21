@@ -96,6 +96,10 @@
     </delete>
   </target>
 
+  <target name="clean-ivy-cache" description="--> Remove files in Ivy's download cache" depends="-init-ivy">
+    <ivy:cleancache/>
+  </target>
+
   <target name="clean-doc" description="--> Remove generated Javadoc directory">
     <delete dir="${javadoc.dir}"/>
   </target>
@@ -166,7 +170,7 @@
   </target>
 
   <target name="publish" description="--> Publish built packages to the Ivy repository" depends="package">
-    <ivy:publish resolver="ivy-repository" forcedeliver="yes">
+    <ivy:publish resolver="local" forcedeliver="yes">
       <artifacts pattern="build/[artifact].[ext]"/>
     </ivy:publish>
   </target>
