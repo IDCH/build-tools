@@ -9,9 +9,9 @@
 
 # This property gives the path to the Ivy repository as a URL, which is what Ivy needs in order to resolve the
 # dependencies for your project (i.e., 'ant resolve' in your project).
-ivy-repository = http://ivy.idch.org
+ivy.repository.url = http://ivy.idch.org
 
 # This property gives the path to the Ivy repository as a local filesystem path, which is what the 'ivy-repository'
 # project needs in order to create/update the repository. Note that this (obviously) means that in order to update
 # the Ivy repository, you must be running on a system having local or file-share access to the repository.
-ivy-repository-fs = /web/idch/ivy
+ivy.repository.dir = /web/idch/ivy
