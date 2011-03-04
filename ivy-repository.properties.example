@@ -1,0 +1,17 @@
+# Example ivy-repository.properties -- copy this file the the parent directory of build-tools as
+# 'ivy-repository.properties' and modify as appropriate.
+
+# This file specifies the location of the Ivy repository where all of the 3rd party dependencies for these projects
+# are managed, and also where these projets publish their built artifats (jars, wars, etc.) for consumption by
+# dependent projects.
+#
+# The scripts for maintaining the contents of this repository are contained in the 'ivy-repository' project.
+
+# This property gives the path to the Ivy repository as a URL, which is what Ivy needs in order to resolve the
+# dependencies for your project (i.e., 'ant resolve' in your project).
+ivy.repository.url = http://ivy.idch.org
+
+# This property gives the path to the Ivy repository as a local filesystem path, which is what the 'ivy-repository'
+# project needs in order to create/update the repository. Note that this (obviously) means that in order to update
+# the Ivy repository, you must be running on a system having local or file-share access to the repository.
+ivy.repository.dir = /web/idch/ivy

@@ -13,31 +13,66 @@
 <!== ============================================================================================================= -->
 <project name="bootstrap-ivy2">
 
+  <property name="ivy2.uri" value="antlib:org.apache.ivy.ant"/>
+  <property name="ivy2.main.class" value="org.apache.ivy.Main"/>
+
   <!-- What to install, and where to get it from -->
-  <property name="ivy2.install.version" value="2.1.0" />
+  <property name="ivy2.install.version" value="2.2.0" />
   <property name="ivy2.jar.url" value="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy2.install.version}/ivy-${ivy2.install.version}.jar"/>
 
   <!-- Where to put it -->
   <property name="plugin.dir" value="${user.home}/lib" />
-  <property name="ivy2.jar.file" value="${plugin.dir}/ivy2.jar" />
+  <property name="ivy2.jar.file" value="${plugin.dir}/ivy-${ivy2.install.version}.jar" />
 
+  <!-- Classpath to search for it -->
+  <path id="ivy2.class.path">
+    <pathelement location="${ivy2.jar.file}"/>
+    <pathelement location="${ant.library.dir}"/>
+  </path>
 
-  <!-- Helper target to check whether Ivy is already available. The property ivy2-installed.check will be set only if
-       Ivy can be found with Ant's current classpath. -->
-  <target name="-check-for-installed-ivy2">
-    <condition property="ivy2-installed.check" value="yes">
-      <available classname="org.apache.ivy.Main"/>
+  <!-- Property ivy2-activated.check indicates whether the Ant tasks for Ivy
+        are already activated (i.e., the tasks are already available for use by
+        this instance of Ant). If they are, nothing more needs to be done. -->
+  <condition property="ivy2-activated.check" value="yes">
+    <typefound name="settings" uri="${ivy2.uri}"/>
+  </condition>
+
+  <!-- Property ivy2-available.check indicates whether the Ivy jar appears to
+       be available (even if not yet activated for use by this instance of
+       Ant). If it is, then we don't need to try to download anything. -->
+  <condition property="ivy2-available.check" value="yes">
+    <available classname="${ivy2.main.class}" classpathref="ivy2.class.path"/>
+  </condition>
+
+  <!-- Downloads Apache Ivy, if it isn't already present in either the Ant
+       plugin directory, or in the user's local plugin directory ${plugin.dir}.
+       It will abort the build if the download fails. -->
+  <target name="download-ivy2" unless="ivy2-available.check">
+    <echo message="Apache Ivy ${ivy2.install.version} is not present...downloading."/>
+    <mkdir dir="${plugin.dir}"/>
+    <get src="${ivy2.jar.url}" dest="${ivy2.jar.file}"/>
+
+    <!-- OK, Ivy should be available now...abort if it isn't. -->
+    <condition property="ivy2-available.check" value="yes">
+      <available classname="${ivy2.main.class}" classpathref="ivy2.class.path"/>
     </condition>
+    <fail message="Downloading Apache Ivy ${ivy2.install.version} failed...aborting build."
+          unless="ivy2-available.check"/>
   </target>
 
+  <!-- Activates the Ant tasks for Apache Ivy, making them available for use in
+       this instance of Ant, if they aren't already. It will abort the build if
+       activation fails. -->
+  <target name="activate-ivy2" depends="download-ivy2" unless="ivy2-activated.check">
+    <echo message="Activating Ant tasks for Apache Ivy ${ivy2.install.version}"/>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="${ivy2.uri}" classpath="${ivy2.jar.file}"/>
 
-  <!-- If Ivy isn't already present, download it from the web and tell Ant about it. This way, only Ant is a
-       prerequisite for building. -->
-  <target name="download-ivy2" depends="-check-for-installed-ivy2" unless="ivy2-installed.check">
-    <echo message="Apache Ivy is not present...downloading version ${ivy2.install.version}"/>
-    <mkdir dir="${plugin.dir}"/>
-    <get src="${ivy2.jar.url}" dest="${ivy2.jar.file}" usetimestamp="true"/>
-    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpath="${ivy2.jar.file}"/>
+    <!-- From here, we should definitely have the Ivy tasks available. -->
+    <condition property="ivy2-activated.check" value="yes">
+      <typefound name="settings" uri="${ivy2.uri}"/>
+    </condition>
+    <fail message="Activating Apache Ivy ${ivy2.install.version} failed...aborting build."
+          unless="ivy2-activated.check"/>
   </target>
 
 </project>

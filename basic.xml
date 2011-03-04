@@ -1,47 +1,48 @@
 <!-- -*- ant -*- -->
-<!-- =================================================================================== ==>
+<!-- ====================================================================================== ==>
 <!== basic.xml
 <!==
 <!== Created by Ryan L. Saunders <saunders@aggienetwork.com>
+<!==        and Neal Audenaert <neal@idch.org>
 <!==
-<!== This file implements a complete Ant/Ivy build system for a basic Java project. For 
-<!== many projects, all you'll need in your project's build.xml is 
+<!== This file implements a complete Ant/Ivy build system for a basic Java project. For many 
+<!== projects, all you'll need in your project's build.xml is 
 <!== <import file="${basedir}/..build-tools/basic.xml"/>. This is preferable to cloning this 
-<!== file, as it allows enhancements and bug fixes to be made more easily. If your projects 
+<!== file, as it allows enhancements and bug fixes to be made more easily. If your projects  
 <!== has "special needs", you can address them by overriding the <target>s, <path>s, and 
 <!== <property>s from this file in the importing build.xml. See the Ant documentation for the 
 <!== <import> task for more information.
-<!== =================================================================================== -->
+<!== ====================================================================================== -->
 <project name="basic" default="package" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <!-- The path to this file's base directory, needed for relative includes, because the 
        importing build.xml gets to define ${basedir}. -->
   <dirname property="basic.basedir" file="${ant.file.basic}"/>
 
-  <!-- Build configuration properties (e.g., compiler flags) are loaded from this file. If 
-       you want your project to have non-default build properties, define this property to 
-       point to your own file before <import>ing. -->
+  <!-- Build configuration properties (e.g., compiler flags) are loaded from this file. If you 
+       want your project to have non-default build properties, define this property to point 
+       to your own file before <import>ing. -->
   <property name="build.properties" value="${basic.basedir}/build.properties"/>
   <property file="${build.properties}"/>
 
   <!-- Ivy configuration is kept in this file. If you want your project to use a different 
-       Ivy congfiguration, define this property to point to your own ivysettings.xml 
-       before <import>ing. -->
+       Ivy congfiguration, define this property to point to your own ivysettings.xml before 
+       <import>ing. -->
   <property name="ivy.settings.xml" value="${basic.basedir}/ivysettings.xml"/>
 
 
-  <!-- ================================================================================= ==>
+  <!-- ==================================================================================== ==>
   <!== Demand-loading support for add-on tasks which may not be present
-  <!== ================================================================================= -->
+  <!== ==================================================================================== -->
 
   <!-- Check for Apache Ivy, and download it if not present -->
   <import file="${basic.basedir}/bootstrap-ivy2.xml"/>
   <import file="${basic.basedir}/bootstrap-antlr3.xml"/>
 
 
-  <!-- ================================================================================= ==>
+  <!-- ==================================================================================== ==>
   <!== Basic project directory structure
-  <!== ================================================================================= -->
+  <!== ==================================================================================== -->
 
   <property name="build.dir" value="${basedir}/build"/>         <!-- Where built things are placed -->
   <property name="classfile.dir" value="${build.dir}/classes"/> <!-- Where built .class files are placed -->
@@ -49,10 +50,19 @@
   <property name="lib.dir" value="${basedir}/lib"/>             <!-- Where Ivy retrieves dependencies to -->
   <property name="src.dir" value="${basedir}/src"/>             <!-- Where source files are kept -->
 
-
-  <!-- ================================================================================= ==>
+  <!-- ==================================================================================== ==>
+  <!== Unit tests directory structure
+  <!== ==================================================================================== -->
+  
+  <property name="test.src.dir" value="${basedir}/test" />                       <!-- Where test source files are kept -->
+  <property name="test.build.dir" value="${build.dir}/test" />                   <!-- Where built things are placed -->
+  <property name="test.classes.dir" value="${test.build.dir}/classes" />         <!-- Where built test .class files are placed -->
+  <property name="test.data.dir" value="${test.build.dir}/data" />               <!-- Where test result data are placed -->
+  <property name="test.reports.dir" value="${test.build.dir}/reports" />         <!-- Where test result reports area placed -->
+  
+  <!-- ==================================================================================== ==>
   <!== Java compilation flags
-  <!== ================================================================================= -->
+  <!== ==================================================================================== -->
 
   <property name="ant.build.javac.source" value="1.6"/>
   <property name="ant.build.javac.target" value="1.6"/>
@@ -64,6 +74,17 @@
   <property name="compile.warn.deprecated" value="yes"/>
   <property name="compile.warn.unchecked" value="yes"/>
 
+  <!-- Indicates whether the Unit Test should be run in their own JVM. This is 
+       usually a good idea because it prevents the test run from breaking Ant's JVM
+       and Ant's state doesn't affect the test code. -->
+  <property name="junit.fork" value="true"/>
+    
+  <!-- Controls how the JVM is forked. Options are 'perTest' to fork a new JVM for every test 
+       (default), 'perBatch' to fork a new JVM for every bach of tests, and 'once' to fork the
+       JVM for every set of tests with matching configuration options. We recommend 'once' to 
+       improve performance (starting the JVM is time consuming). --> 
+  <property name="junit.forkmode" value="once"/>   
+  
   <!-- A <path> referencing all Java source files for this project. If your project has 
        additional source files elsewhere (e.g., source code generated by another tool), 
        redefine this <path> in your project's build.xml before <import>ing this file. -->
@@ -71,25 +92,37 @@
     <pathelement location="${src.dir}"/>
   </path>
 
+  <!-- Classpath including all compile/runtime binary dependencies. -->
   <path id="lib.classpath">
     <fileset dir="${lib.dir}">
       <include name="**/*.jar"/>
     </fileset>
   </path>
 
-
-  <!-- ================================================================================= ==>
+  <!-- Classpath used to compile unit tests -->
+  <path id="test.compile.path">
+    <path refid="lib.classpath" />
+    <pathelement location="${classfile.dir}" />
+  </path>
+  
+  <!-- Classpath used to run unit tests -->
+  <path id="test.path">
+    <path refid="test.compile.path" />
+    <pathelement location="${test.classes.dir}" />
+  </path>
+  
+  <!-- ==================================================================================== ==>
   <!== Javadoc generation parameters
-  <!== ================================================================================= -->
+  <!== ==================================================================================== -->
 
   <property name="javadoc.windowtitle" value="${ant.project.name} API Documentation"/>
 
   <path id="javadoc.src.path" refid="src.path"/>
 
 
-  <!-- ================================================================================= ==>
+  <!-- ==================================================================================== ==>
   <!== Clean targets
-  <!== ================================================================================= -->
+  <!== ==================================================================================== -->
 
   <target name="clean-bin" description="--> Remove compiled binaries directory">
     <delete dir="${classfile.dir}"/>
@@ -97,6 +130,11 @@
       <include name="**/*.jar"/>
       <include name="**/*.war"/>
     </delete>
+  </target>
+
+  <target name="clean-ivy-cache" depends="-init-ivy"
+          description="--> Remove files in Ivy's download cache">
+    <ivy:cleancache/>
   </target>
 
   <target name="clean-doc" description="--> Remove generated Javadoc directory">
@@ -107,45 +145,37 @@
     <delete dir="${lib.dir}"/>
   </target>
 
-  <target name="clean" description="--> Remove all generated files" 
-          depends="clean-bin, clean-lib, clean-doc">
+  <target name="clean" depends="clean-bin, clean-lib, clean-doc" 
+          description="--> Remove all generated files">
     <delete dir="${build.dir}"/>
   </target>
 
 
-  <!-- ================================================================================= ==>
+  <!-- ==================================================================================== ==>
   <!== Build targets
-  <!== ================================================================================= -->
+  <!== ==================================================================================== -->
 
-  <!-- TODO -->
-  <target name="-init-ivy" depends="download-ivy2">
+  <target name="-init-ivy" depends="activate-ivy2">
     <ivy:settings file="${ivy.settings.xml}"/>
   </target>
 
-  <target name="resolve" 
-  	      description="--> Download this project's dependencies" 
-  	      depends="-init-ivy" 
-  	      unless="resolve.skip">
+  <target name="resolve" depends="-init-ivy" 
+          description="--> Download this project's dependencies" 
+          unless="resolve.skip">
     <mkdir dir="${lib.dir}"/>
-    <ivy:retrieve sync="true" pattern="${lib.dir}/[artifact]-[revision].[ext]" type="jar"/>
+    <ivy:retrieve sync="true" pattern="${lib.dir}/[artifact]-[revision].[ext]" conf="compile" log="quiet"/>
   </target>
 
-  <target name="compile" 
-  	      description="--> Compile this project" 
-  	      depends="resolve" 
-  	      unless="compile.skip">
+  <target name="compile" depends="resolve" 
+          description="--> Compile this project" 
+          unless="compile.skip">
     <mkdir dir="${classfile.dir}"/>
 
     <!-- Determine compiler options -->
-    <condition property="compilerarg.deprecation" 
-    	       value="-Xlint:deprecation" 
-    	       else="-Xlint:-deprecation">
+    <condition property="compilerarg.deprecation" value="-Xlint:deprecation" else="-Xlint:-deprecation">
       <istrue value="${compile.warn.deprecation}"/>
     </condition>
-  	
-    <condition property="compilerarg.unchecked" 
-    	       value="-Xlint:unchecked" 
-    	       else="-Xlint:-unchecked">
+    <condition property="compilerarg.unchecked" value="-Xlint:unchecked" else="-Xlint:-unchecked">
       <istrue value="${compile.warn.unchecked}"/>
     </condition>
 
@@ -160,33 +190,91 @@
       <src refid="src.path"/>
       <compilerarg value="${compilerarg.deprecation}"/>
       <compilerarg value="${compilerarg.unchecked}"/>
+      <compilerarg line="-encoding utf-8"/>
     </javac>
 
   </target>
 
   <!-- TODO: how to handle javadoc artifacts -->
-  <target name="doc" depends="resolve" description="--> Build Javadocs for this project">
+  <target name="doc" depends="resolve" 
+          description="--> Build Javadocs for this project">
     <javadoc sourcepathref="javadoc.src.path"
              destdir="${javadoc.dir}"
              classpathref="lib.classpath"
-             windowtitle="${javadoc.windowtitle}">
+             windowtitle="${javadoc.windowtitle}"
+             encoding="utf-8">
       <link href="http://java.sun.com/javase/6/docs/api"/>
     </javadoc>
   </target>
 
-  <target name="package" 
-  	      description="--> Build package(s) for this project" 
-  	      depends="compile">
+  <target name="package"  depends="compile" 
+          description="--> Build package(s) for this project">
     <jar destfile="${build.dir}/${ant.project.name}.jar"
          basedir="${classfile.dir}"/>
   </target>
 
-  <target name="publish" 
-  	      description="--> Publish built packages to the Ivy repository" 
-  	      depends="package">
-    <ivy:publish resolver="idch-ivyfs" forcedeliver="yes">
+  <target name="publish" depends="package" 
+          description="--> Publish built packages to the Ivy repository">
+    <ivy:publish resolver="local" forcedeliver="yes">
       <artifacts pattern="build/[artifact].[ext]"/>
     </ivy:publish>
   </target>
 
+  <!-- ==================================================================================== ==>
+  <!=  Unit test targets
+  <!== ==================================================================================== -->
+    
+  <!-- Create the requisite directories, force a purge of data and reports to ensure that 
+       results of previous test runs don't stick around. -->
+  <target name="-test-init" description="--> Initialize unit test directories" >
+    <mkdir dir="${test.classes.dir}" />
+    <delete dir="${test.data.dir}" />
+    <delete dir="${test.reports.dir}" />
+    <mkdir dir="${test.data.dir}" />
+    <mkdir dir="${test.reports.dir}" />
+  </target>
+    
+  <target name="test-compile" depends="compile,-test-init"
+          description="--> Compile the unit tests">
+    <echo message="Compiling test classes from to ${test.classes.dir}"/>
+    <javac destdir="${test.classes.dir}"
+           debug="true"
+           includeAntRuntime="true"
+           srcdir="${test.src.dir}" >
+      <classpath refid="test.compile.path" />
+    </javac>
+  </target>
+    
+  <target name="test" depends="test-compile" description="--> Run the unit tests">
+    <junit printsummary="false" 
+           haltonfailure="false" 
+           errorProperty="test.failed" 
+           failureProperty="test.failed"
+           fork="${junit.fork}"
+           forkmode="${junit.forkmode}">
+        
+      <classpath refid="test.path"/>
+      <formatter type="brief" usefile="false" />
+      <formatter type="xml"/>
+        
+      <test name="${testcase}" todir="${test.data.dir}" if="testcase"/>
+      <batchtest todir="${test.data.dir}" unless="testcase">
+        <fileset dir="${test.classes.dir}" includes="**/tests/*Test.class" />
+      </batchtest>
+      
+    </junit>
+      
+    <junitreport todir="${test.data.dir}">
+      <fileset dir="${test.data.dir}">
+        <include name="TEST-*.xml"/>
+      </fileset>
+        
+      <report format="frames" todir="${test.reports.dir}"/>
+    </junitreport>
+      
+    <fail if="test.failed">
+      Tests failed. Check ${test.reports.dir}
+    </fail>
+  </target>
+  
 </project>

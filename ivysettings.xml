@@ -13,8 +13,8 @@
     <chain name="main" returnFirst="true">
       <resolver ref="local"/>
       <url name="ivy-repository">
-        <ivy pattern="${ivy-repository}/[organisation]/[module]/ivys/ivy-[revision].xml"/>
-        <artifact pattern="${ivy-repository}/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
+        <ivy pattern="${ivy.repository.url}/[organisation]/[module]/ivys/ivy-[revision].xml"/>
+        <artifact pattern="${ivy.repository.url}/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
       </url>
     </chain>
   </resolvers>
