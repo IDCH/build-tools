@@ -226,7 +226,7 @@
     
   <!-- Create the requisite directories, force a purge of data and reports to ensure that 
        results of previous test runs don't stick around. -->
-  <target name="-test-init" description="--> Initialize unit test directories" >
+  <target name="-test-init">
     <mkdir dir="${test.classes.dir}" />
     <delete dir="${test.data.dir}" />
     <delete dir="${test.reports.dir}" />
@@ -234,8 +234,7 @@
     <mkdir dir="${test.reports.dir}" />
   </target>
     
-  <target name="test-compile" depends="compile,-test-init"
-          description="--> Compile the unit tests">
+  <target name="test-compile" depends="compile,-test-init">
     <echo message="Compiling test classes from to ${test.classes.dir}"/>
     <javac destdir="${test.classes.dir}"
            debug="true"
@@ -259,7 +258,7 @@
         
       <test name="${testcase}" todir="${test.data.dir}" if="testcase"/>
       <batchtest todir="${test.data.dir}" unless="testcase">
-        <fileset dir="${test.classes.dir}" includes="**/tests/*Test.class" />
+        <fileset dir="${test.classes.dir}" includes="**/*Test.class" />
       </batchtest>
       
     </junit>
