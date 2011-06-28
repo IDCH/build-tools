@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- -*- ant -*- -->
+<!-- ====================================================================================== ==>
+<!== hibernate.xml
+<!==
+<!== Created Neal Audenaert <neal@idch.org>
+<!==
+<!== This file extends the complete Ant/Ivy build system for a basic Java project implementd
+<!== in basic.xml in order to introduce support for Hibernate. For many projects that require
+<!== Hibernate based ORM, all you'll need in your project's build.xml is 
+<!== <import file="${basedir}/..build-tools/basic.xml"/>. This is preferable to cloning this 
+<!== file, as it allows enhancements and bug fixes to be made more easily. If your projects  
+<!== has "special needs", you can address them by overriding the <target>s, <path>s, and 
+<!== <property>s from this file in the importing build.xml. See the Ant documentation for the 
+<!== <import> task for more information.
+<!== 
+<!== NOTE This file is still in an early-alpha state and should not be considered stable.
+<!== ====================================================================================== -->
+<project name="hibernate" default="" basedir=".">
+
+  <import file="./basic.xml"/>
+  
+  <!-- ==================================================================== ==>
+  <!== Demand loading support for add-on tasks which may not be pressent.
+  <!== ==================================================================== -->
+
+  <property name="etc.dir" value="${basedir}/etc"/>
+
+  <!-- ==================================================================== ==>
+  <!== Path definitions
+  <!== ==================================================================== -->
+    
+  <path id="run.classpath">
+    <path refid="lib.classpath"/>
+    <path location="${etc.dir}"/> 
+    <path location="${build.dir}/classes"/>
+  </path>
+
+  <!-- useful shortcuts -->
+  <patternset id="meta.files">
+      <include name="**/*.xml"/>
+      <include name="**/*.properties"/>
+  </patternset>
+
+  <!-- Copy the Hibernate configuration files from the soruce code directiory
+       into the build directory. -->
+  <target name="copy-metafiles">
+    <copy todir="${classfile.dir}">
+      <fileset dir="${src.dir}">
+        <patternset refid="meta.files"/>
+      </fileset>
+    </copy>
+    <copy todir="${classfile.dir}">
+      <fileset dir="${etc.dir}">
+        <patternset refid="meta.files"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- Initialize the database -->
+  <target name="init-database" depends="compile, copy-metafiles"
+          description="--> Exports a generated schema to the the database">
+      <!-- TODO need some way to indicate that we've already run this. Most likely,
+                that should be done by HibernateUtils validating the database and
+                updating or creating it only if needed. -->
+      <java fork="true" classname="org.idch.util.hibernate.HibernateUtil" classpathref="run.classpath"/>
+  </target>
+
+
+</project>
