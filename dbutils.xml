@@ -1,0 +1,37 @@
+<project name="LHA" default="package" basedir="." xmlns:antlr="antlib:org.apache.tools.ant.antlr">
+  <!-- ==================================================================================== ==>
+    == DATABASE CONFIGURATION AND MANIPULATION COMMANDS                                     ==>
+    == ==================================================================================== -->
+<!--   <property name="hsqldb.datadir" value="H:\Apps\hsqldb\hsqldb-1.8.1.3\data"/> -->
+  <property name="hsqldb.datadir" value="../data/db"/>
+  <property name="hsqldb.datafile" value="${hsqldb.datadir}/lhaDB"/>
+  <property name="hsqldb.servername" value="lhaDB"/>
+  <property name="hsqldb.username" value="sa"/>
+  <property name="hsqldb.password" value=""/>
+  
+  <path id="hsqldb.server.path">
+    <pathelement location="H:\Apps\hsqldb\hsqldb-1.8.1.3\lib\hsqldb.jar" />
+  </path>
+  
+  <target name="hsqldb-isrunning" description="Tests if the HSQLDB database server is running">
+  </target>
+    
+  <target name="hsqldb-stop" description="Stops the HSQLDB database server">
+     <sql classpathref="hsqldb.server.path"
+		  driver="org.hsqldb.jdbcDriver"
+		  url="jdbc:hsqldb:hsql://127.0.0.1/${hsqldb.servername}"
+		  userid="${hsqldb.username}" password="${hsqldb.password}"
+		  autocommit="true">SHUTDOWN</sql>
+  </target>
+  
+  <target name="hsqldb-start" description="Starts the HSQLDB database server">
+    <!-- java -cp ../lib/hsqldb.jar org.hsqldb.Server -database.0 file:mydb -dbname.0 xdb -->
+    <java classname="org.hsqldb.Server" classpathref="hsqldb.server.path" fork="true">
+      <arg line="-database.0 file:${hsqldb.datafile} -dbname.0 ${hsqldb.servername}"/>
+    </java>
+  </target>
+  
+  <target name="hsqldb-restart" depends="hsqldb-stop, hsqldb-start" 
+          description="Restarts the HSQLDB database server"/>
+
+</project>
