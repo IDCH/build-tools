@@ -189,6 +189,7 @@
            debug="${compile.build.debug}"
            optimize="${compile.build.optimize}"
            deprecation="${compile.build.deprecation}"
+           includeAntRuntime="false"
            failonerror="yes"
            listfiles="true">
       <src refid="src.path"/>
