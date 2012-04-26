@@ -42,16 +42,19 @@
       <include name="**/*.properties"/>
   </patternset>
 
-  <!-- Copy the Hibernate configuration files from the soruce code directiory
-       into the build directory. -->
+  <!-- Copy the Hibernate configuration files from the soruce code directory
+       and etc/jpa directory into the build directory. -->
   <target name="copy-metafiles">
     <copy todir="${classfile.dir}">
       <fileset dir="${src.dir}">
         <patternset refid="meta.files"/>
       </fileset>
     </copy>
+
+    <!-- TODO this is the wrong way to do this. Not Exactly sure how it 
+              should work -->
     <copy todir="${classfile.dir}">
-      <fileset dir="${etc.dir}">
+      <fileset dir="${etc.dir}/jpa">
         <patternset refid="meta.files"/>
       </fileset>
     </copy>
